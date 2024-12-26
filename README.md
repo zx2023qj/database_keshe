@@ -13,3 +13,4 @@ python3 run.py
 浏览器访问127.0.0.1:5000，你要是有兴趣开内网也可以自己开（
 ```
 
+相关文章：https://zx2023qj.github.io/2024/12/19/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%AE%9E%E9%AA%8C-%E8%AF%BE%E8%AE%BE/
