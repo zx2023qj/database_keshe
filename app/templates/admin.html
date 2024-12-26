@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>admin</title>
+    <link rel="stylesheet" href="../static/css/bootstrap.min.css">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        main {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        footer {
+            position: relative;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('index.index') }}">题库系统</a>
+            <div class="d-flex">
+                <a type="button" class="btn btn-danger btn-lg" data-bs-toggle="modal" data-bs-target="#logoutModal">
+                    注销
+                </a>
+            </div>
+        </div>
+    </nav>
+    <main>
+        <!-- 主体内容 -->
+        <div class="container mt-5">
+            <h1 class="text-center">管理员管理页面</h1>
+            <div class="mt-4">
+                <h3>管理员信息：</h3>
+                <ul class="list-group mb-4">
+                    <li class="list-group-item">姓名: {{ admin_info.name }}</li>
+                </ul>
+                <h3>用户管理：</h3>
+                <ul class="list-group mb-4">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>可选功能</span>
+                        <div>
+                            <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#viewUserModal">
+                                查看用户
+                            </button>
+                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                                增加用户
+                            </button>
+                            <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editUserModal">
+                                修改用户
+                            </button>
+                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteUserModal">
+                                删除用户
+                            </button>
+                        </div>
+                    </li>
+                </ul>
+                <h3>科目管理：</h3>
+                <ul class="list-group mb-4">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>可选功能</span>
+                        <div>
+                            <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#viewSubjectModal">
+                                查看科目
+                            </button>
+                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addSubjectModal">
+                                增加科目
+                            </button>
+                            <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editSubjectModal">
+                                修改科目
+                            </button>
+                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteSubjectModal">
+                                删除科目
+                            </button>
+                        </div>
+                    </li>
+                </ul>
+                <h3>题目管理：</h3>
+                <ul class="list-group mb-4">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>可选功能</span>
+                        <div>
+                            <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#viewQuestionsModal" data-subject="{{ subject }}">
+                                查看题目
+                            </button>
+                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addQuestionModal" data-subject="{{ subject }}">
+                                增加题目
+                            </button>
+                            <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editQuestionModal" data-subject="{{ subject }}">
+                                修改题目
+                            </button>
+                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteQuestionModal" data-subject="{{ subject }}">
+                                删除题目
+                            </button>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <!-- 注销模态框 -->
+        <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="logoutModalLabel">确认注销</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        您确定要注销吗？注销后您将退出当前会话。
+                    </div>
+                    <div class="modal-footer">
+                        <!-- 提交表单确认注销 -->
+                        <form method="POST" action="{{ url_for('auth.logout') }}">
+                            <button type="submit" name="confirm" value="yes" class="btn btn-danger">是</button>
+                        </form>
+                        <!-- 取消退出 -->
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">否</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 查看用户模态框 -->
+        <div class="modal fade" id="viewUserModal" tabindex="-1" aria-labelledby="viewUserModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="viewUserModalLabel">查看用户</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <ul class="list-group" id="usersList">
+                            <!-- 用户列表将通过 JavaScript 动态填充 -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 增加用户模态框 -->
+        <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addUserModalLabel">增加用户</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="addUserForm" method="POST" action="{{ url_for('user.user') }}">
+                            <input type="hidden" name="action" value="add">
+                            <div class="mb-3">
+                                <label for="addUsername" class="form-label">用户名</label>
+                                <input type="text" class="form-control" id="addUsername" name="username" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="addPassword" class="form-label">密码</label>
+                                <input type="password" class="form-control" id="addPassword" name="password" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="addEmail" class="form-label">邮箱</label>
+                                <input type="email" class="form-control" id="addEmail" name="email" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="addRole" class="form-label">身份</label>
+                                <select class="form-control" id="addRole" name="role" required>
+                                    <option value="" disabled selected>请选择身份</option>
+                                    <option value="student">学生</option>
+                                    <option value="teacher">教师</option>
+                                    <option value="admin">管理员</option>
+                                </select>
+                            </div>             
+                            <div class="mb-3" id="addSubjectContainer">
+                                <label for="subjects" class="form-label">绑定科目</label>
+                                <div id="addSubjectList">
+                                    <div class="subject-item">
+                                        <select class="form-control mb-2" name="subjects[]" required>
+                                            <option value="" disabled selected>请选择科目</option>
+                                            {% for subject in subjects %}
+                                            <option value="{{ subject.name }}">{{ subject.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <button type="button" id="addAddSubjectButton" class="btn btn-secondary">添加科目</button>
+                                <button type="button" id="addRemoveSubjectButton" class="btn btn-danger">删除科目</button>
+                            </div>           
+                            <div id="resultMessage" class="mt-3"></div>
+                            <button type="submit" class="btn btn-primary">保存</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 修改用户模态框 -->
+        <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editUserModalLabel">修改用户</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editUserForm" method="POST" action="{{ url_for('user.user') }}">
+                            <input type="hidden" name="action" value="edit">
+                            <div class="mb-3">
+                                <label for="editUsername" class="form-label">用户名</label>
+                                <input type="text" class="form-control" id="editUsername" name="username" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editPassword" class="form-label">密码</label>
+                                <input type="password" class="form-control" id="editPassword" name="password" required>
+                            </div>          
+                            <div class="mb-3" id="editSubjectContainer">
+                                <label for="subjects" class="form-label">绑定科目</label>
+                                <div id="editSubjectList">
+                                    <div class="subject-item">
+                                        <select class="form-control mb-2" name="subjects[]" required>
+                                            <option value="" disabled selected>请选择科目</option>
+                                            {% for subject in subjects %}
+                                            <option value="{{ subject.name }}">{{ subject.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <button type="button" id="editAddSubjectButton" class="btn btn-secondary">添加科目</button>
+                                <button type="button" id="editRemoveSubjectButton" class="btn btn-danger">删除科目</button>
+                            </div>           
+                            <div id="resultMessage" class="mt-3"></div>
+                            <button type="submit" class="btn btn-primary">保存</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 删除用户模态框 -->
+        <div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteUserModalLabel">删除用户</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="deleteUserForm" method="POST" action="{{ url_for('user.user') }}">
+                            <input type="hidden" name="action" value="delete">
+                            <div class="mb-3">
+                                <label for="deleteUsername" class="form-label">用户名</label>
+                                <input type="text" class="form-control" id="deleteUsername" name="username">
+                            </div>
+                            <div id="resultMessage" class="mt-3"></div>
+                            <button type="submit" class="btn btn-danger">删除</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 查看科目模态框 -->
+        <div class="modal fade" id="viewSubjectModal" tabindex="-1" aria-labelledby="viewSubjectModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="viewSubjectModalLabel">查看科目</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <ul class="list-group" id="subjectsList">
+                            <!-- 科目列表将通过 JavaScript 动态填充 -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 增加科目模态框 -->
+        <div class="modal fade" id="addSubjectModal" tabindex="-1" aria-labelledby="addSubjectModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addSubjectModalLabel">增加科目</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="addSubjectForm" method="POST" action="{{ url_for('subject.subject') }}">
+                            <input type="hidden" name="action" value="add">
+                            <div class="mb-3">
+                                <label for="addSubject" class="form-label">科目</label>
+                                <input type="text" class="form-control" id="addSubject" name="subject" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="addDuration" class="form-label">考试持续时间</label>
+                                <input type="text" class="form-control" id="addDuration" name="duration" placeholder="单位：分钟" required>
+                            </div>
+                            <div id="resultMessage" class="mt-3"></div>
+                            <button type="submit" class="btn btn-primary">保存</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 修改科目模态框 -->
+        <div class="modal fade" id="editSubjectModal" tabindex="-1" aria-labelledby="editSubjectModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editSubjectModalLabel">修改科目</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editSubjectForm" method="POST" action="{{ url_for('subject.subject') }}">
+                            <input type="hidden" name="action" value="edit">
+                            <div class="mb-3">
+                                <label for="editSubject" class="form-label">科目</label>
+                                <input type="text" class="form-control" id="editSubject" name="subject" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editDuration" class="form-label">考试持续时间</label>
+                                <input type="text" class="form-control" id="editDuration" name="duration" placeholder="单位：分钟" required>
+                            </div>
+                            <div id="resultMessage" class="mt-3"></div>
+                            <button type="submit" class="btn btn-primary">保存</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 删除科目模态框 -->
+        <div class="modal fade" id="deleteSubjectModal" tabindex="-1" aria-labelledby="deleteSubjectModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteSubjectModalLabel">删除科目</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="deleteSubjectForm" method="POST" action="{{ url_for('subject.subject') }}">
+                            <input type="hidden" name="action" value="delete">
+                            <div class="mb-3">
+                                <label for="deleteSubject" class="form-label">科目</label>
+                                <input type="text" class="form-control" id="deleteSubject" name="subject" required>
+                            </div>
+                            <div id="resultMessage" class="mt-3"></div>
+                            <button type="submit" class="btn btn-danger">删除</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 查看题目模态框 -->
+        <div class="modal fade" id="viewQuestionsModal" tabindex="-1" aria-labelledby="viewQuestionsModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="viewQuestionsModalLabel">查看题目</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <ul class="list-group" id="questionsList">
+                            <!-- 题目列表将通过 JavaScript 动态填充 -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 增加题目模态框 -->
+        <div class="modal fade" id="addQuestionModal" tabindex="-1" aria-labelledby="addQuestionModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addQuestionModalLabel">增加题目</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="addQuestionForm" method="POST" action="{{ url_for('question.question') }}">
+                            <input type="hidden" name="action" value="add">
+                            <!-- 题目 -->
+                            <div class="mb-3">
+                                <label for="addQuestion" class="form-label">题目</label>
+                                <input type="text" class="form-control" id="addQuestion" name="question" required>
+                            </div>
+                            <!-- 题干 -->
+                            <div class="mb-3">
+                                <label for="addQuestionDescription" class="form-label">题干</label>
+                                <input type="text" class="form-control" id="addQuestionDescription" name="description" required>
+                            </div>
+                            <!-- 题目对应的科目 -->
+                            <div class="mb-3">
+                                <label for="addQuestionSubject" class="form-label">科目</label>
+                                <input type="text" class="form-control" id="addQuestionSubject" name="subject" required>
+                            </div>
+                            <!-- 题目类型 -->
+                            <div class="mb-3">
+                                <label for="addQuestionType" class="form-label">题目类型</label>
+                                <select class="form-control" id="addQuestionType" name="type" required>
+                                    <option value="" disabled selected>请选择题目类型</option>
+                                    <option value="single_choice">单选题</option>
+                                    <option value="multiple_choice">多选题</option>
+                                    <option value="true_false">判断题</option>
+                                    <option value="fill_in_the_blank">填空题</option>
+                                </select>
+                            </div>
+                            <!-- 题目难度 -->
+                            <div class="mb-3">
+                                <label class="questionDifficulty">难度</label>
+                                <select class="form-control" name="difficulty" required>
+                                    <option value="easy">简单</option>
+                                    <option value="medium">中等</option>
+                                    <option value="hard">困难</option>
+                                </select>
+                            </div>
+                            <!-- 动态生成的字段 -->
+                            <div id="addDynamicFields"></div>
+                            <div id="resultMessage" class="mt-3"></div>
+                            <button type="submit" class="btn btn-primary">保存</button>
+                        </form>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+        <!-- 修改题目模态框 -->
+        <div class="modal fade" id="editQuestionModal" tabindex="-1" aria-labelledby="editQuestionModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editQuestionModalLabel">修改题目</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editQuestionForm" method="POST" action="{{ url_for('question.question') }}">
+                            <input type="hidden" name="action" value="edit">
+                            <!-- 题目 -->
+                            <div class="mb-3">
+                                <label for="editQuestion" class="form-label">题目</label>
+                                <input type="text" class="form-control" id="editQuestion" name="question" required>
+                            </div>
+                            <!-- 题干 -->
+                            <div class="mb-3">
+                                <label for="editQuestionDescription" class="form-label">题干</label>
+                                <input type="text" class="form-control" id="editQuestionDescription" name="description" required>
+                            </div>
+                            <!-- 题目对应的科目 -->
+                            <div class="mb-3">
+                                <label for="editQuestionSubject" class="form-label">科目</label>
+                                <input type="text" class="form-control" id="editQuestionSubject" name="subject" required>
+                            </div>
+                            <!-- 题目类型 -->
+                            <div class="mb-3">
+                                <label for="editQuestionType" class="form-label">题目类型</label>
+                                <select class="form-control" id="editQuestionType" name="type" required>
+                                    <option value="" disabled selected>请选择题目类型</option>
+                                    <option value="single_choice">单选题</option>
+                                    <option value="multiple_choice">多选题</option>
+                                    <option value="true_false">判断题</option>
+                                    <option value="fill_in_the_blank">填空题</option>
+                                </select>
+                            </div>
+                            <!-- 题目难度 -->
+                            <div class="mb-3">
+                                <label class="questionDifficulty">难度</label>
+                                <select class="form-control" name="difficulty" required>
+                                    <option value="easy">简单</option>
+                                    <option value="medium">中等</option>
+                                    <option value="hard">困难</option>
+                                </select>
+                            </div>
+                            <!-- 动态生成的字段 -->
+                            <div id="editDynamicFields"></div>
+                            <div id="resultMessage" class="mt-3"></div>
+                            <button type="submit" class="btn btn-primary">保存</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 删除题目模态框 -->
+        <div class="modal fade" id="deleteQuestionModal" tabindex="-1" aria-labelledby="deleteQuestionModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteQuestionModalLabel">删除题目</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="deleteQuestionForm" method="POST" action="{{ url_for('question.question') }}">
+                            <input type="hidden" name="action" value="delete">
+                            <input type="hidden" name="subject" id="deleteSubjectInput">
+                            <div class="mb-3">
+                                <label for="deleteQuestion" class="form-label">题目</label>
+                                <input type="text" class="form-control" id="deleteQuestion" name="question">
+                            </div>
+                            <div id="resultMessage" class="mt-3"></div>
+                            <button type="submit" class="btn btn-danger">删除</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+    <!-- 页脚 -->
+    <footer class="bg-dark text-white text-center py-3 mt-5">
+        <p class="mb-0">© 2024 题库系统. 保留所有权利.</p>
+    </footer>
+
+    <script src="../static/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // viewUserModal show event
+        var viewUserModal = document.getElementById('viewUserModal');
+        viewUserModal.addEventListener('show.bs.modal', function (event) {
+
+            var modalTitle = viewUserModal.querySelector('.modal-title');
+            var usersList = viewUserModal.querySelector('#usersList');
+    
+            modalTitle.textContent = '查看用户';
+    
+            // 使用 URLSearchParams 构建请求体
+            const params = new URLSearchParams();
+            params.append('action', 'read');
+
+            // 发送 POST 请求获取用户列表
+            fetch('{{ url_for("user.user") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: params.toString() // 将 URLSearchParams 转换为字符串
+            })
+            .then(response => response.json())
+            .then(data => {
+                usersList.innerHTML = ''; // 清空用户列表
+                // 遍历 data.user 数组
+
+                data.user.forEach(user => {
+                    // console.log(user);
+                    var li = document.createElement('li');
+                    li.className = 'list-group-item';
+                    // 使用 user.username, user.id 和 user.email 来填充列表项
+                    li.textContent = `id: ${user.id}, 用户名: ${user.username}, 邮箱: ${user.email}, 身份: ${user.role}`;
+                    usersList.appendChild(li);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching user data:', error);
+            });
+            
+        });
+        
+        var viewSubjectModal = document.getElementById('viewSubjectModal');
+        viewSubjectModal.addEventListener('show.bs.modal', function (event) {
+            var modalTitle = viewSubjectModal.querySelector('.modal-title');
+            var subjectsList = viewSubjectModal.querySelector('#subjectsList');
+    
+            modalTitle.textContent = '查看科目';
+    
+            // 使用 URLSearchParams 构建请求体
+            const params = new URLSearchParams();
+            params.append('action', 'read');
+
+            // 发送 POST 请求获取用户列表
+            fetch('{{ url_for("subject.subject") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: params.toString() // 将 URLSearchParams 转换为字符串
+            })
+            .then(response => response.json())
+            .then(data => {
+                subjectsList.innerHTML = ''; // 清空用户列表
+                // 遍历 data.subject 数组
+                data.subject.forEach(subject => {
+                    // console.log(subject);
+                    var li = document.createElement('li');
+                    li.className = 'list-group-item';
+                    li.textContent = `id: ${subject.id}, 科目: ${subject.name}, 考试持续时间: ${subject.duration}分钟`;
+                    subjectsList.appendChild(li);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching subject data:', error);
+            });
+            
+        });
+
+        var viewQuestionsModal = document.getElementById('viewQuestionsModal');
+        viewQuestionsModal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+            var subject = button.getAttribute('data-subject');
+            var modalTitle = viewQuestionsModal.querySelector('.modal-title');
+            var questionsList = viewQuestionsModal.querySelector('#questionsList');
+
+            modalTitle.textContent = '查看题目: ' + subject;
+
+            // 使用 URLSearchParams 构建请求体
+            const params = new URLSearchParams();
+            params.append('action', 'read');
+
+            // 发送 POST 请求获取用户列表
+            fetch('{{ url_for("question.question") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: params.toString() // 将 URLSearchParams 转换为字符串
+            })
+            .then(response => response.json())
+            .then(data => {
+                questionsList.innerHTML = '';
+                data.question.forEach(question => {
+                    var li = document.createElement('li');
+                    li.className = 'list-group-item';
+                    li.textContent = `id: ${question.id}, 题目: ${question.title}, 题干: ${question.description}, 科目: ${question.subject}, 类型: ${question.type}, 难度: ${question.difficulty}, 创建者: ${question.creator}`;
+                    questionsList.appendChild(li);
+                });
+            });
+        });
+
+    </script>
+    <!-- delete form data after hidden modal -->
+    <script>
+        var modals = document.querySelectorAll('.modal');
+        modals.forEach(modal => {
+            modal.addEventListener('hidden.bs.modal', function (event) {
+                var form = modal.querySelector('form');
+                if (form) {
+                    form.reset();
+                    this.querySelector('#resultMessage').innerHTML = ''
+                }
+                var addDynamicFieldsContainer = document.getElementById('addDynamicFields');
+                if (addDynamicFieldsContainer) {
+                    addDynamicFieldsContainer.innerHTML = '';
+                }
+                var editDynamicFieldsContainer = document.getElementById('editDynamicFields');
+                if (editDynamicFieldsContainer) {
+                    editDynamicFieldsContainer.innerHTML = '';
+                }
+            });
+        });
+    </script>
+    <!-- ajax异步提交避免表单刷新页面 -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.getElementById("addSubjectForm");
+    
+            form.addEventListener("submit", function (event) {
+                event.preventDefault(); // 阻止默认表单提交行为
+    
+                const formData = new FormData(form);
+    
+                fetch("{{ url_for('subject.subject') }}", {
+                    method: "POST",
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === "success") {
+                            this.querySelector('#resultMessage').innerHTML = `<div class="alert alert-success">${data.message}</div>`;
+                            this.reset();
+                        } else {
+                            this.querySelector('#resultMessage').innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
+                            this.reset();
+                            
+                        }
+                    })
+                    .catch(error => {
+                        this.querySelector('#resultMessage').innerHTML = `<div class="alert alert-danger">提交失败，请重试！</div>`;
+                        this.reset(); 
+                        console.error("Error:", error);
+                    });
+            });
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.getElementById("editSubjectForm");
+    
+            form.addEventListener("submit", function (event) {
+                event.preventDefault(); // 阻止默认表单提交行为
+    
+                const formData = new FormData(form);
+    
+                fetch("{{ url_for('subject.subject') }}", {
+                    method: "POST",
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === "success") {
+                            this.querySelector('#resultMessage').innerHTML = `<div class="alert alert-success">${data.message}</div>`;
+                            this.reset();
+                        } else {
+                            this.querySelector('#resultMessage').innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
+                            this.reset();
+                        }
+                    })
+                    .catch(error => {
+                        this.querySelector('#resultMessage').innerHTML = `<div class="alert alert-danger">提交失败，请重试！</div>`;
+                        this.reset();
+                        console.error("Error:", error);
+                    });
+            });
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.getElementById("deleteSubjectForm");
+    
+            form.addEventListener("submit", function (event) {
+                event.preventDefault(); // 阻止默认表单提交行为
+    
+                const formData = new FormData(form);
+    
+                fetch("{{ url_for('subject.subject') }}", {
+                    method: "POST",
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === "success") {
+                            this.querySelector('#resultMessage').innerHTML = `<div class="alert alert-success">${data.message}</div>`;
+                            this.querySelector('#deleteSubject').value = '';
+                        } else {
+                            this.querySelector('#resultMessage').innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
+                            this.querySelector('#deleteSubject').value = '';
+                        }
+                    })
+                    .catch(error => {
+                        this.querySelector('#resultMessage').innerHTML = `<div class="alert alert-danger">提交失败，请重试！</div>`;
+                        this.querySelector('#deleteSubject').value = '';
+                        console.error("Error:", error);
+                    });
+            });
+        });
+        
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.getElementById("addUserForm");
+            form.addEventListener("submit", function (event) {
+                event.preventDefault(); // 阻止默认表单提交行为
+    
+                const formData = new FormData(form);
+    
+                fetch("{{ url_for('user.user') }}", {
+                    method: "POST",
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === "success") {
+                            this.querySelector('#resultMessage').innerHTML = `<div class="alert alert-success">${data.message}</div>`;
+                            this.reset();
+                        } else {
+                            this.querySelector('#resultMessage').innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
+                            this.reset();
+                        }
+                    })
+                    .catch(error => {
+                        this.querySelector('#resultMessage').innerHTML = `<div class="alert alert-danger">提交失败，请重试！</div>`;
+                        this.reset();
+                        console.error("Error:", error);
+                    });
+            });
+        });
+        
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.getElementById("editUserForm");
+            form.addEventListener("submit", function (event) {
+                event.preventDefault(); // 阻止默认表单提交行为
+    
+                const formData = new FormData(form);
+    
+                fetch("{{ url_for('user.user') }}", {
+                    method: "POST",
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === "success") {
+                            this.querySelector('#resultMessage').innerHTML = `<div class="alert alert-success">${data.message}</div>`;
+                            this.reset();
+                        } else {
+                            this.querySelector('#resultMessage').innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
+                            this.reset();
+                        }
+                    })
+                    .catch(error => {
+                        this.querySelector('#resultMessage').innerHTML = `<div class="alert alert-danger">提交失败，请重试！</div>`;
+                        this.reset();
+                        console.error("Error:", error);
+                    });
+            });
+        });
+        
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.getElementById("deleteUserForm");
+            form.addEventListener("submit", function (event) {
+                event.preventDefault(); // 阻止默认表单提交行为
+    
+                const formData = new FormData(form);
+    
+                fetch("{{ url_for('user.user') }}", {
+                    method: "POST",
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === "success") {
+                            this.querySelector('#resultMessage').innerHTML = `<div class="alert alert-success">${data.message}</div>`;
+                            this.reset();
+                        } else {
+                            this.querySelector('#resultMessage').innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
+                            this.reset();
+                        }
+                    })
+                    .catch(error => {
+                        this.querySelector('#resultMessage').innerHTML = `<div class="alert alert-danger">提交失败，请重试！</div>`;
+                        this.reset();
+                        console.error("Error:", error);
+                    });
+            });
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.getElementById("addQuestionForm");
+            form.addEventListener("submit", function (event) {
+                event.preventDefault(); // 阻止默认表单提交行为
+    
+                const formData = new FormData(form);
+    
+                fetch("{{ url_for('question.question') }}", {
+                    method: "POST",
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === "success") {
+                            this.querySelector('#resultMessage').innerHTML = `<div class="alert alert-success">${data.message}</div>`;
+                            this.reset();
+                        } else {
+                            this.querySelector('#resultMessage').innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
+                            this.reset();
+                        }
+                    })
+                    .catch(error => {
+                        this.querySelector('#resultMessage').innerHTML = `<div class="alert alert-danger">提交失败，请重试！</div>`;
+                        this.reset();
+                        console.error("Error:", error);
+                    });
+                var addDynamicFieldsContainer = document.getElementById('addDynamicFields');
+                if (addDynamicFieldsContainer) {
+                    addDynamicFieldsContainer.innerHTML = '';
+                }
+                var editDynamicFieldsContainer = document.getElementById('editDynamicFields');
+                if (editDynamicFieldsContainer) {
+                    editDynamicFieldsContainer.innerHTML = '';
+                }
+            });
+        });
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.getElementById("editQuestionForm");
+            form.addEventListener("submit", function (event) {
+                event.preventDefault(); // 阻止默认表单提交行为
+    
+                const formData = new FormData(form);
+    
+                fetch("{{ url_for('question.question') }}", {
+                    method: "POST",
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === "success") {
+                            this.querySelector('#resultMessage').innerHTML = `<div class="alert alert-success">${data.message}</div>`;
+                            this.reset();
+                        } else {
+                            this.querySelector('#resultMessage').innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
+                            this.reset();
+                        }
+                    })
+                    .catch(error => {
+                        this.querySelector('#resultMessage').innerHTML = `<div class="alert alert-danger">提交失败，请重试！</div>`;
+                        this.reset();
+                        console.error("Error:", error);
+                    });
+                var addDynamicFieldsContainer = document.getElementById('addDynamicFields');
+                if (addDynamicFieldsContainer) {
+                    addDynamicFieldsContainer.innerHTML = '';
+                }
+                var editDynamicFieldsContainer = document.getElementById('editDynamicFields');
+                if (editDynamicFieldsContainer) {
+                    editDynamicFieldsContainer.innerHTML = '';
+                }
+            });
+        });
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.getElementById("deleteQuestionForm");
+            form.addEventListener("submit", function (event) {
+                event.preventDefault(); // 阻止默认表单提交行为
+    
+                const formData = new FormData(form);
+    
+                fetch("{{ url_for('question.question') }}", {
+                    method: "POST",
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === "success") {
+                            this.querySelector('#resultMessage').innerHTML = `<div class="alert alert-success">${data.message}</div>`;
+                            this.reset();
+                        } else {
+                            this.querySelector('#resultMessage').innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
+                            this.reset();
+                        }
+                    })
+                    .catch(error => {
+                        this.querySelector('#resultMessage').innerHTML = `<div class="alert alert-danger">提交失败，请重试！</div>`;
+                        this.reset();
+                        console.error("Error:", error);
+                    });
+            });
+        });
+    
+    </script>
+     <!-- addUserForm dynmaic add subject -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const addSubjectButton = document.getElementById("addAddSubjectButton");
+            const removeSubjectButton = document.getElementById("addRemoveSubjectButton");
+            const subjectList = document.getElementById("addSubjectList");
+
+            // 添加科目选择框
+            addSubjectButton.addEventListener("click", function () {
+                const newSubject = document.createElement("div");
+                newSubject.className = "subject-item";
+                newSubject.innerHTML = `
+                    <select class="form-control mb-2" name="subjects[]" required>
+                        ${document.querySelector(".subject-item select").innerHTML}
+                    `;
+                subjectList.appendChild(newSubject);
+            });
+
+            // 删除最后一个科目选择框
+            removeSubjectButton.addEventListener("click", function () {
+                const subjectItems = subjectList.getElementsByClassName("subject-item");
+                if (subjectItems.length > 1) {
+                    subjectList.removeChild(subjectItems[subjectItems.length - 1]);
+                }
+            });
+        });
+        document.addEventListener("DOMContentLoaded", function () {
+            const addSubjectButton = document.getElementById("editAddSubjectButton");
+            const removeSubjectButton = document.getElementById("editRemoveSubjectButton");
+            const subjectList = document.getElementById("editSubjectList");
+
+            // 添加科目选择框
+            addSubjectButton.addEventListener("click", function () {
+                const newSubject = document.createElement("div");
+                newSubject.className = "subject-item";
+                newSubject.innerHTML = `
+                    <select class="form-control mb-2" name="subjects[]" required>
+                        ${document.querySelector(".subject-item select").innerHTML}
+                    `;
+                subjectList.appendChild(newSubject);
+            });
+
+            // 删除最后一个科目选择框
+            removeSubjectButton.addEventListener("click", function () {
+                const subjectItems = subjectList.getElementsByClassName("subject-item");
+                if (subjectItems.length > 1) {
+                    subjectList.removeChild(subjectItems[subjectItems.length - 1]);
+                }
+            });
+        });
+    </script>
+     <!-- dynamic question fields -->
+    <script>
+        const addQuestionTypeSelect = document.getElementById('addQuestionType');
+        const addDynamicFieldsContainer = document.getElementById('addDynamicFields');  
+        addQuestionTypeSelect.addEventListener('change', function () {
+            const selectedType = addQuestionTypeSelect.value;
+            addDynamicFieldsContainer.innerHTML = ''; // 清空动态区域
+    
+            if (selectedType === 'single_choice' || selectedType === 'multiple_choice') {
+                // 选择题
+                addDynamicFieldsContainer.innerHTML = `
+                    <div class="mb-3">
+                        <label class="form-label">选项</label>
+                        <input type="text" class="form-control mb-2" name="options[]" placeholder="选项 A" required>
+                        <input type="text" class="form-control mb-2" name="options[]" placeholder="选项 B" required>
+                        <input type="text" class="form-control mb-2" name="options[]" placeholder="选项 C" required>
+                        <input type="text" class="form-control mb-2" name="options[]" placeholder="选项 D" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">正确答案</label>
+                        <input type="text" class="form-control" name="correct_answer" placeholder="例如：A 或 A,B,C" required>
+                    </div>
+                `;
+            } else if (selectedType === 'true_false') {
+                // 判断题
+                addDynamicFieldsContainer.innerHTML = `
+                    <div class="mb-3">
+                        <label class="form-label">答案</label>
+                        <select class="form-control" name="correct_answer" required>
+                            <option value="true">是</option>
+                            <option value="false">否</option>
+                        </select>
+                    </div>
+                `;
+            } else if (selectedType === 'fill_in_the_blank') {
+                // 填空题
+                addDynamicFieldsContainer.innerHTML = `
+                    <div class="mb-3">
+                        <label class="form-label">正确答案</label>
+                        <input type="text" class="form-control" name="correct_answer" required>
+                    </div>
+                `;
+            }
+        });
+
+        const editQuestionTypeSelect = document.getElementById('editQuestionType');
+        const editDynamicFieldsContainer = document.getElementById('editDynamicFields');    
+        editQuestionTypeSelect.addEventListener('change', function () {
+            const selectedType = editQuestionTypeSelect.value;
+            editDynamicFieldsContainer.innerHTML = ''; // 清空动态区域
+    
+            if (selectedType === 'single_choice' || selectedType === 'multiple_choice') {
+                // 选择题
+                editDynamicFieldsContainer.innerHTML = `
+                    <div class="mb-3">
+                        <label class="form-label">选项</label>
+                        <input type="text" class="form-control mb-2" name="options[]" placeholder="选项 A" required>
+                        <input type="text" class="form-control mb-2" name="options[]" placeholder="选项 B" required>
+                        <input type="text" class="form-control mb-2" name="options[]" placeholder="选项 C" required>
+                        <input type="text" class="form-control mb-2" name="options[]" placeholder="选项 D" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">正确答案</label>
+                        <input type="text" class="form-control" name="correct_answer" placeholder="例如：A 或 A,B,C" required>
+                    </div>
+                `;
+            } else if (selectedType === 'true_false') {
+                // 判断题
+                editDynamicFieldsContainer.innerHTML = `
+                    <div class="mb-3">
+                        <label class="form-label">答案</label>
+                        <select class="form-control" name="correct_answer" required>
+                            <option value="true">是</option>
+                            <option value="false">否</option>
+                        </select>
+                    </div>
+                `;
+            } else if (selectedType === 'fill_in_the_blank') {
+                // 填空题
+                editDynamicFieldsContainer.innerHTML = `
+                    <div class="mb-3">
+                        <label class="form-label">正确答案</label>
+                        <input type="text" class="form-control" name="correct_answer" required>
+                    </div>
+                `;
+            }
+        });
+
+    </script>
+    
+    
+</body>
+</html>
